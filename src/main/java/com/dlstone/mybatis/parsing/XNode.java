@@ -3,6 +3,7 @@ package com.dlstone.mybatis.parsing;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.Properties;
 
@@ -22,8 +23,28 @@ public class XNode {
     }
 
     private String parseBody(Node node) {
-        String data = ((CharacterData)node).getData();
+        String data = this.getBodyData(node);
+        if (data == null) {
+            NodeList children = node.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                data = this.getBodyData(child);
+                if (data != null) {
+                    break;
+                }
+            }
+        }
         return data;
+    }
+
+    private String getBodyData(Node child) {
+        if (child.getNodeType() != 4 && child.getNodeType() != 3) {
+            return null;
+        } else {
+            String data = ((CharacterData) child).getData();
+            data = PropertyParser.parse(data);
+            return data;
+        }
     }
 
     private Properties parseAttributes(Node node) {
@@ -32,7 +53,7 @@ public class XNode {
         if (attributesNode != null) {
             for (int i = 0; i < attributesNode.getLength(); i++) {
                 Node attribute = attributesNode.item(i);
-                String value = attribute.getNodeValue();
+                String value = PropertyParser.parse(attribute.getNodeValue());
                 attributes.put(attribute.getNodeName(), value);
             }
         }
