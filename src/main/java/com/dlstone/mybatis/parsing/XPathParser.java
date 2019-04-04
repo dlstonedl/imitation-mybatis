@@ -26,7 +26,7 @@ public class XPathParser {
         return this.evalNode(this.document, expression);
     }
 
-    private XNode evalNode(Object root, String expression) {
+    protected XNode evalNode(Object root, String expression) {
         Node node = (Node) this.evaluate(expression, root, XPathConstants.NODE);
         return node == null ? null : new XNode(this, node);
     }

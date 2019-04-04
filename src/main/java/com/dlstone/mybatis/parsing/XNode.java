@@ -5,6 +5,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 public class XNode {
@@ -61,4 +64,43 @@ public class XNode {
     }
 
 
+    public XNode evalNode(String expression) {
+        return this.xPathParser.evalNode(this.node, expression);
+    }
+
+    public List<XNode> getChildren() {
+        List<XNode> children = new ArrayList<>();
+        NodeList nodeList = this.node.getChildNodes();
+        if (nodeList != null) {
+            int i = 0;
+
+            for (int n = nodeList.getLength(); i < n; i++) {
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == 1) {
+                    children.add(new XNode(this.xPathParser, node));
+                }
+            }
+        }
+        return children;
+    }
+
+    public String getStringAttribute(String name) {
+        return this.attributes.getProperty(name);
+    }
+
+    public Properties getChildrenAsProperties() {
+        Properties properties = new Properties();
+        Iterator<XNode> iterator = this.getChildren().iterator();
+
+        while(iterator.hasNext()) {
+            XNode child = iterator.next();
+            String name = child.getStringAttribute("name");
+            String value = child.getStringAttribute("value");
+            if (name != null && value != null) {
+                properties.setProperty(name, value);
+            }
+        }
+
+        return properties;
+    }
 }

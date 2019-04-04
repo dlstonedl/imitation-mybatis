@@ -1,14 +1,21 @@
 package com.dlstone.mybatis.builder.xml;
 
 import com.dlstone.mybatis.builder.BaseBuilder;
+import com.dlstone.mybatis.builder.BuilderException;
+import com.dlstone.mybatis.mapping.Environment;
 import com.dlstone.mybatis.parsing.XNode;
 import com.dlstone.mybatis.parsing.XPathParser;
 import com.dlstone.mybatis.session.Configuration;
+import org.apache.commons.dbcp2.BasicDataSourceFactory;
 
+import javax.sql.DataSource;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Properties;
 
 public class XMLConfigBuilder extends BaseBuilder {
     private XPathParser parser;
+    private String environment;
 
     public XMLConfigBuilder(InputStream inputStream) {
         this(new XPathParser(inputStream));
@@ -25,7 +32,50 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
 
     private void parseConfiguration(XNode root) {
+        this.environmentsElement(root.evalNode("environments"));
 
+
+    }
+
+    private void environmentsElement(XNode context) {
+        if (context != null) {
+            this.environment = context.getStringAttribute("default");
+
+            Iterator<XNode> iterator = context.getChildren().iterator();
+            while(iterator.hasNext()) {
+                XNode children = iterator.next();
+                String id = children.getStringAttribute("id");
+                if (this.isSpecifiedEnvironment(id)) {
+                    DataSource dataSource = this.dataSourceElement(children.evalNode("dataSource"));
+                    this.configuration.setEnvironment(Environment.builder()
+                            .id(id).dataSource(dataSource).build());
+                }
+            }
+
+        }
+    }
+
+    private DataSource dataSourceElement(XNode context) {
+        try {
+            if (context != null) {
+                Properties properties = context.getChildrenAsProperties();
+                return BasicDataSourceFactory.createDataSource(properties);
+            } else {
+                throw new BuilderException("Environment declaration requires a DataSourceFactory.");
+            }
+        } catch (Exception e) {
+            throw new BuilderException("Environment declaration requires a DataSourceFactory.");
+        }
+    }
+
+    private boolean isSpecifiedEnvironment(String id) {
+        if (this.environment == null) {
+            throw new BuilderException("no environment specified");
+        } else if (id == null) {
+            throw new BuilderException("Environment requires an id attribute.");
+        } else {
+            return this.environment.equals(id);
+        }
 
     }
 }
