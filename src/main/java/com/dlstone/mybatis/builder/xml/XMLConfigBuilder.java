@@ -32,17 +32,33 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
 
     private void parseConfiguration(XNode root) {
-        this.environmentsElement(root.evalNode("environments"));
-
-
+        try {
+            this.environmentsElement(root.evalNode("environments"));
+            this.mapperElement(root.evalNode("mappers"));
+        } catch (Exception e) {
+            throw new BuilderException("parseConfiguration error");
+        }
     }
 
-    private void environmentsElement(XNode context) {
+    private void mapperElement(XNode parent) throws Exception {
+        if (parent != null) {
+            Iterator<XNode> iterator = parent.getChildren().iterator();
+            while (iterator.hasNext()) {
+                XNode child = iterator.next();
+                String resource = child.getStringAttribute("resource");
+                InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, this.configuration, resource);
+                mapperParser.parse();
+            }
+        }
+    }
+
+    private void environmentsElement(XNode context) throws Exception {
         if (context != null) {
             this.environment = context.getStringAttribute("default");
 
             Iterator<XNode> iterator = context.getChildren().iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 XNode children = iterator.next();
                 String id = children.getStringAttribute("id");
                 if (this.isSpecifiedEnvironment(id)) {
@@ -55,17 +71,14 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
-    private DataSource dataSourceElement(XNode context) {
-        try {
-            if (context != null) {
-                Properties properties = context.getChildrenAsProperties();
-                return BasicDataSourceFactory.createDataSource(properties);
-            } else {
-                throw new BuilderException("Environment declaration requires a DataSourceFactory.");
-            }
-        } catch (Exception e) {
+    private DataSource dataSourceElement(XNode context) throws Exception {
+        if (context != null) {
+            Properties properties = context.getChildrenAsProperties();
+            return BasicDataSourceFactory.createDataSource(properties);
+        } else {
             throw new BuilderException("Environment declaration requires a DataSourceFactory.");
         }
+
     }
 
     private boolean isSpecifiedEnvironment(String id) {
