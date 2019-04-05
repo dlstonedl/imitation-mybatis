@@ -8,4 +8,17 @@ public abstract class BaseBuilder {
     public BaseBuilder(Configuration configuration) {
         this.configuration = configuration;
     }
+
+    protected Class<?> resolveClass(String alias){
+        if (alias == null) {
+            return null;
+        } else {
+            try {
+                Class.forName(alias, true, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 }
