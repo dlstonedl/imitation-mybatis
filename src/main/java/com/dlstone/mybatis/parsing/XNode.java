@@ -107,4 +107,12 @@ public class XNode {
     public Node getNode() {
         return this.node;
     }
+
+    public XNode newXNode(Node node) {
+        return new XNode(this.xPathParser, node);
+    }
+
+    public String getStringBody(String def) {
+        return this.body == null ? def : this.body;
+    }
 }

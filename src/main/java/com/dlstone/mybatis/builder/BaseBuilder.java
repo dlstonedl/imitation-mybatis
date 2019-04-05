@@ -14,11 +14,12 @@ public abstract class BaseBuilder {
             return null;
         } else {
             try {
-                Class.forName(alias, true, Thread.currentThread().getContextClassLoader());
+                return Class.forName(alias, true, Thread.currentThread().getContextClassLoader());
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
+
 }

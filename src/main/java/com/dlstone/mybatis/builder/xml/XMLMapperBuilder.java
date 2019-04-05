@@ -21,8 +21,9 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
 
     public void parse() {
-        if (this.configuration.isResourceLoaded(this.resource)) {
+        if (!this.configuration.isResourceLoaded(this.resource)) {
             this.configurationElement(this.xPathParser.evalNode("/mapper"));
+            this.configuration.addLoadedResource(this.resource);
         }
     }
 

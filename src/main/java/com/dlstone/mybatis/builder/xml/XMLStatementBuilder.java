@@ -3,8 +3,11 @@ package com.dlstone.mybatis.builder.xml;
 import com.dlstone.mybatis.builder.BaseBuilder;
 import com.dlstone.mybatis.builder.MapperBuilderAssistant;
 import com.dlstone.mybatis.mapping.SqlCommandType;
+import com.dlstone.mybatis.mapping.SqlSource;
 import com.dlstone.mybatis.mapping.StatementType;
 import com.dlstone.mybatis.parsing.XNode;
+import com.dlstone.mybatis.scripting.LanguageDriver;
+import com.dlstone.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.dlstone.mybatis.session.Configuration;
 
 import java.util.Locale;
@@ -26,10 +29,9 @@ public class XMLStatementBuilder extends BaseBuilder {
         StatementType statementType = StatementType.PREPARED;
         String nodeName = this.context.getNode().getNodeName();
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
-        boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
-
-
-
+        LanguageDriver langDriver = new XMLLanguageDriver();
+        SqlSource sqlSource = langDriver.createSqlSource(this.configuration, this.context);
+        this.builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType, resultTypeClass, langDriver);
     }
 
 }

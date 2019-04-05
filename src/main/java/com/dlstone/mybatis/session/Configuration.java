@@ -18,4 +18,8 @@ public class Configuration {
     public boolean isResourceLoaded(String resource) {
         return this.loadedResources.contains(resource);
     }
+
+    public void addLoadedResource(String resource) {
+        this.loadedResources.add(resource);
+    }
 }

@@ -40,7 +40,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
-    private void mapperElement(XNode parent) throws Exception {
+    private void mapperElement(XNode parent) {
         if (parent != null) {
             Iterator<XNode> iterator = parent.getChildren().iterator();
             while (iterator.hasNext()) {
