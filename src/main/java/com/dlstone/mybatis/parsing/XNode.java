@@ -103,4 +103,8 @@ public class XNode {
 
         return properties;
     }
+
+    public Node getNode() {
+        return this.node;
+    }
 }
