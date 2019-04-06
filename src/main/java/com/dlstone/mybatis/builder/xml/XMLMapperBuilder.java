@@ -24,6 +24,18 @@ public class XMLMapperBuilder extends BaseBuilder {
         if (!this.configuration.isResourceLoaded(this.resource)) {
             this.configurationElement(this.xPathParser.evalNode("/mapper"));
             this.configuration.addLoadedResource(this.resource);
+            bindMapperForNamespace();
+        }
+    }
+
+    private void bindMapperForNamespace() {
+        String namespace = builderAssistant.getCurrentNamespace();
+        try {
+            Class<?> boundType = Class.forName(namespace, true, Thread.currentThread().getContextClassLoader());
+            configuration.addLoadedResource("namespace:" + namespace);
+            configuration.addMapper(boundType);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
