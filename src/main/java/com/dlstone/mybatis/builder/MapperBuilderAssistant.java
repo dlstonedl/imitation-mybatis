@@ -1,12 +1,12 @@
 package com.dlstone.mybatis.builder;
 
-import com.dlstone.mybatis.mapping.SqlCommandType;
-import com.dlstone.mybatis.mapping.SqlSource;
-import com.dlstone.mybatis.mapping.StatementType;
-import com.dlstone.mybatis.scripting.LanguageDriver;
+import com.dlstone.mybatis.mapping.*;
 import com.dlstone.mybatis.session.Configuration;
+import lombok.Getter;
+
 
 public class MapperBuilderAssistant extends BaseBuilder {
+    @Getter
     private String currentNamespace;
     private final String resource;
 
@@ -40,7 +40,15 @@ public class MapperBuilderAssistant extends BaseBuilder {
         return this.currentNamespace + "." + base;
     }
 
-    public void addMappedStatement(String id, SqlSource sqlSource, StatementType statementType, SqlCommandType sqlCommandType, Class<?> resultTypeClass, LanguageDriver langDriver) {
-
+    public MappedStatement addMappedStatement(String id, SqlSource sqlSource, StatementType statementType, SqlCommandType sqlCommandType, Class<?> resultTypeClass) {
+        MappedStatement statement = MappedStatement.builder()
+                .id(id)
+                .sqlSource(sqlSource)
+                .statementType(statementType)
+                .sqlCommandType(sqlCommandType)
+                .resultMap(ResultMap.builder().type(resultTypeClass).build())
+                .build();
+        this.configuration.addMappedStatement(statement);
+        return statement;
     }
 }
